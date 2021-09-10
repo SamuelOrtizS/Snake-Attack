@@ -1,0 +1,22 @@
+/*Se declaran las variables que definen la visibilidad segun el tipo de dispositivo*/
+:root {
+    --buttonsDisplayMobile: none;
+    --buttonsDisplayPC: block;
+}
+/*Se actualizan las variables si se detecta un dispositivo vertical, entendido como un movil*/
+@media screen and (max-device-width: 720px) {
+    @media screen and (min-device-height: 721px) {
+        :root {
+            --buttonsDisplayMobile: block;
+            --buttonsDisplayPC: none;
+        }
+    }
+}
+/*Se llama a la variable para mostrar u ocultar la clase que contiene los controles para cada tipo de dispositivo*/
+.desktop {
+    display: var(--buttonsDisplayPC);
+}
+
+.mobile {
+    display: var(--buttonsDisplayMobile);
+}
