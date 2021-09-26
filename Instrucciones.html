@@ -1,10 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Instrucciones</title>
-    <script src="web-lib/p5.js"></script>
-    <script src="web-lib/functional-light_v0.6.0.js"></script>
-    <script src="web-lib/p5js2functional.js"></script>
+    <title>SnakeAttack - Instrucciones</title>
 <link rel="stylesheet" href="style.css">
   </head>
 
@@ -35,5 +32,12 @@
 </nav>
 </div>
 <table>
+<!--Se reproduce el audio de fondo, aplicando el iframe para saltarse la limitacion de algunos navegadores para la reproduccion automatica de audio-->
+<iframe src="sounds/silence.mp3" allow="autoplay" id="audio" style="display: none"></iframe>
+<audio id="backsound" src="sounds/background.mp3" autoplay loop></audio>
+<script>
+	var audio = document.getElementById("backsound");
+	audio.volume = 0.3;
+</script>
 </body>
 </html>

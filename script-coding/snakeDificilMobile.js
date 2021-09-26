@@ -24,12 +24,12 @@ function moveSnake(snake, dir) {
 const dx = 20;
 const dy = 20;
 //Se declara el tamaño del canvas
-const canvasAlto = 720;
-const canvasAncho = 720;
+const canvasAlto = 960;
+const canvasAncho = 960;
 
 //Dibuja cada parte de la serpiente
 function drawSnake(snake){
-  fill(0,255,0);
+  fill('#b4342e');
   forEach(snake, s => {
     rect(s.x * dx, s.y * dy, dx, dy);
   });
@@ -39,41 +39,44 @@ function drawSnake(snake){
 //Dibuja la cabeza de la serpiente
 function drawHead(snake,dir){
   const head = first(snake);
-  fill(0,0,0);
+  fill('#f6f7f2');
   ellipseMode(CORNER);
   noStroke();
   if (dir.x === 0 && dir.y === -1){
         ellipse(head.x*dx,(head.y*dy)+(dy/2),dx/2,dy/2);
-        fill(255,0,0)
+        fill('#f6f7f2');
         rect((head.x*dx)+(dx*5/12),(head.y*dy),dx/6,dy/2);
   } else if (dir.x === 0 && dir.y=== 1){
         ellipse((head.x*dx)+(dx/2),head.y*dy,dx/2,dy/2);
-        fill(255,0,0)
+        fill('#f6f7f2');
         rect((head.x*dx)+(dx*5/12),(head.y*dy)+(dy/2),dx/6,dy/2);
   } else if (dir.x === -1 && dir.y=== 0){
         ellipse((head.x*dx)+(dx/2),head.y*dy,dx/2,dy/2);
-        fill(255,0,0)
+        fill('#f6f7f2');
         rect((head.x*dx),(head.y*dy)+(dx*5/12),dx/2,dy/6);
   } else {
         ellipse(head.x*dx,head.y*dy,dx/2,dy/2);
-        fill(255,0,0)
+        fill('#f6f7f2');
         rect((head.x*dx)+(dx/2),(head.y*dy)+(dy*5/12),dx/2,dy/6);
   }
 }
 
 //Dibuja la comida
 function drawFood(food) {
-  fill(255,0,0);
-  ellipseMode(CORNER);
-  ellipse(food.x * dx, food.y * dy, dx, dy);
+  image(apple,food.x * dx,food.y * dy,dx,dy);
+}
+
+//Dibuja la comida trampa
+function drawTrap(trap) {
+  image(melon,trap.x * dx, trap.y * dy, dx, dy);
 }
 
 //Dibuja el puntaje
 function drawScore(score) {
   const scoreAlto = canvasAlto-(dy/2);
   textFont('Georgia', dx);
-  fill(255,0,0);
-  text("Score: " + score, dx/2, scoreAlto);
+  fill('#ed7a5a');
+  text("Puntaje: " + score, dx/2, scoreAlto);
 }
 
 //Incrementa el puntaje
@@ -103,6 +106,13 @@ function moveFood(food){
   return {x: floor(random()*alto+1),y: floor(random()*ancho+1)};
 }
 
+//Crea una nueva trampa, en una posicion aleatoria dentro del canvas
+function moveTrap(trap){
+  const alto = (canvasAlto-dx)/dx
+  const ancho = (canvasAncho-dy)/dy
+  return {x: floor(random()*alto+1),y: floor(random()*ancho+1)};
+}
+
 //Verifica si se ha comido una fruta, si la cabeza esta en la misma posicion que la fruta
 function haComido(snake,fruit){
   const head = first(snake);
@@ -112,6 +122,17 @@ function haComido(snake,fruit){
       return false;
   }
 }
+
+//Verifica si se ha comido una trampa, si la cabeza esta en la misma posicion que la trampa
+function haCaidoT(snake,trap){
+  const head = first(snake);
+  if ((head.x == trap.x)&&(head.y == trap.y)){
+      return true;
+  } else {
+      return false;
+  }
+}
+
 
 //Termina el juego si la serpiente choca contra el borde del mapa.
 function choqueMuro(snake){
@@ -150,6 +171,11 @@ function posFood(snake,food){
   return inList(rest(snake),food);
 }
 
+//Verifica que la trampa no este dentro de la serpiente
+function posTrap(snake,trap){
+  return inList(rest(snake),trap);
+}
+
 //Termina el juego si la serpiente choca contra un obstaculo
 function choqueObstaculo(snake,obstaculo){
     const head = first(snake);
@@ -165,7 +191,7 @@ function addObstaculo(obstaculo){
 
 //Dibuja un obstaculo
 function drawObstaculo(obstaculo){
-    fill(127);
+    fill('#f4f7f2');
     forEach(obstaculo, o => {
       rect(o.x * dx, o.y * dy, dx, dy);
     });
@@ -174,6 +200,20 @@ function drawObstaculo(obstaculo){
 //Verifica si la comida esta dentro de un obstaculo
 function obsFood(obstaculo,comida){
   return inList(obstaculo,comida);
+}
+
+//Verifica si la trampa esta dentro de un obstaculo
+function obsTrap(obstaculo,trap){
+  return inList(obstaculo,trap);
+}
+
+//Verifica si la comida y la trampa estan en la misma posicion
+function trapFood(trap, food){
+  if ((trap.x == food.x) && (trap.y == food.y)){
+      return (true);
+  } else {
+      return (false);
+  }
 }
 
 //Dibuja los controles en pantalla
@@ -186,6 +226,19 @@ function drawControls() {
   fill(255,0,0);
 }
 
+/*
+  Se pre-cargan los recursos necesarios
+*/
+function preload(){
+  //Se cargan los sonidos
+  fruit = loadSound("sounds/fruta.mp3");
+  backsound = loadSound("sounds/background2.mp3");
+  gameover = loadSound("sounds/fallaste.mp3");
+  //se cargan las imagenes
+  apple = loadImage("imgInGame/manzana.png");
+  melon = loadImage("imgInGame/sandia.png");
+}
+
 /**
  * Esto se llama antes de iniciar el juego
  */
@@ -194,25 +247,40 @@ function drawControls() {
   const drawAncho = canvasAncho;
   frameRate(10);
   createCanvas(drawAlto, drawAncho);
-  Mundo = {snake: [{ x: 3, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 1 }], dir: {x: 1, y: 0}, food: {x: 5, y: 5 }, score: 0, parar: false, obstaculo: []};
+  Mundo = {snake: [{ x: 3, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 1 }], dir: {x: 1, y: 0}, food: {x: 5, y: 5 }, score: 0, parar: false, obstaculo: [], trap: {x: 7, y: 7}};
+  backsound.loop();
+  backsound.setVolume(0.3);
 }
 
 // Dibuja algo en el canvas. Aqui se pone todo lo que quieras pintar
 function drawGame(Mundo){
   if (Mundo.parar){
-      fill(255,255,255);
+      fill('#ed7a5a');
       textSize(50);
       textAlign(CENTER);
-      text("Game Over",0,(canvasAlto-50)/2,canvasAncho,50);
+      text("Juego Terminado",0,(canvasAlto-50)/2,canvasAncho,50);
       frameRate(0);
-  } else {
-      background(0, 0, 0);
+      gameover.play();
+      backsound.setVolume(0.05);
+  } else if (!haComido(Mundo.snake,Mundo.food)){
+      background('#163746');
       drawFood(Mundo.food);
       drawSnake(Mundo.snake);
       drawHead(Mundo.snake,Mundo.dir);
       drawObstaculo(Mundo.obstaculo);
+      drawTrap(Mundo.trap);
       drawScore(Mundo.score);
       drawControls();
+  } else {
+      background('#163746');
+      drawFood(Mundo.food);
+      drawSnake(Mundo.snake);
+      drawHead(Mundo.snake,Mundo.dir);
+      drawObstaculo(Mundo.obstaculo);
+      drawTrap(Mundo.trap);
+      drawScore(Mundo.score);
+      drawControls();
+      fruit.play();
   }
 }
 
@@ -220,14 +288,16 @@ function drawGame(Mundo){
 function onTic(Mundo){
   if (Mundo.score%2 !== 0){
       return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir),obstaculo: addObstaculo(Mundo.obstaculo),score: addScore(1)});
-  } else if (choqueSerpiente(Mundo.snake) || choqueMuro(Mundo.snake) || choqueObstaculo(Mundo.snake,Mundo.obstaculo)){
+  } else if (haCaidoT(Mundo.snake,Mundo.trap) || choqueSerpiente(Mundo.snake) || choqueMuro(Mundo.snake) || choqueObstaculo(Mundo.snake,Mundo.obstaculo)){
       return (update(Mundo, {parar: true}));
   } else if (posFood(Mundo.snake,Mundo.food) || obsFood(Mundo.obstaculo,Mundo.food)){
-      return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir), food: moveFood(Mundo.food)});
+      return update(Mundo, {snake: moveSnake(Muno.snake, Mundo.dir), food: moveFood(Mundo.food)});
+  } else if (posTrap(Mundo.snake, Mundo.trap) || obsTrap(Mundo.obstaculo, Mundo.trap) || trapFood(Mundo.trap, Mundo.food)){
+      return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir), trap: moveTrap(Mundo.trap)});
   } else if (!haComido(Mundo.snake,Mundo.food)){
       return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir)});
   } else {
-      return update(Mundo, {snake: addSnake(Mundo.snake, Mundo.dir),food: moveFood(Mundo.food), score: addScore(1)});
+      return update(Mundo, {snake: addSnake(Mundo.snake, Mundo.dir),food: moveFood(Mundo.food), score: addScore(1), trap: moveTrap(Mundo.trap)});
   }
 }
 
@@ -299,12 +369,6 @@ function onKeyEvent (Mundo, keyCode) {
           return update(Mundo, {dir: {y: 0, x: 1}});
       }
       break;
-      case 67:
-        return (update(Mundo, {snake: addSnake(Mundo.snake, Mundo.dir),food: moveFood(Mundo.food), score: addScore(1)}));
-      break;
-      case 96:
-        return (update(Mundo, {parar: true}));
-      break
     default:
       console.log(keyCode);
       return update(Mundo, {});

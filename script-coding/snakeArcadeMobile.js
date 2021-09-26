@@ -4,6 +4,7 @@
 // Importamos las librerias
 let { append, cons, first, isEmpty, isList, length, rest, map, forEach }  = functionalLight;
 
+
 // Actualiza los atributos del objeto y retorna una copia profunda
 function update(data, attribute) {
   return Object.assign({}, data, attribute);
@@ -24,8 +25,8 @@ function moveSnake(snake, dir) {
 const dx = 20;
 const dy = 20;
 //Se declara el tamaño del canvas
-const canvasAlto = 480;
-const canvasAncho = 480;
+const canvasAlto = 720;
+const canvasAncho = 720;
 
 //Dibuja cada parte de la serpiente
 function drawSnake(snake){
@@ -66,17 +67,27 @@ function drawFood(food) {
   image(apple,food.x * dx,food.y * dy,dx,dy);
 }
 
+//Dibuja la comida trampa
+function drawTrap(trap) {
+  image(melon,trap.x * dx, trap.y * dy, dx, dy);
+}
+
 //Dibuja el puntaje
 function drawScore(score) {
   const scoreAlto = canvasAlto-(dy/2);
   textFont('Georgia', dx);
-  fill('#ed7a5a')
+  fill('#ed7a5a');
   text("Puntaje: " + score, dx/2, scoreAlto);
 }
 
 //Incrementa el puntaje
 function addScore(num){
   return (Mundo.score + num);
+}
+
+//Reduce el puntaje
+function redScore(num){
+  return (Mundo.score - num);
 }
 
 //Incrementa en una unidad el tamaño de la serpiente
@@ -98,13 +109,30 @@ function last(test){
 function moveFood(food){
   const alto = (canvasAlto-dx)/dx
   const ancho = (canvasAncho-dy)/dy
-  return {x: floor(random()*alto+1),y: floor(random()*ancho+1) };
+  return {x: floor(random()*alto+1),y: floor(random()*ancho+1)};
+}
+
+//Crea una nueva trampa, en una posicion aleatoria dentro del canvas
+function moveTrap(trap){
+  const alto = (canvasAlto-dx)/dx
+  const ancho = (canvasAncho-dy)/dy
+  return {x: floor(random()*alto+1),y: floor(random()*ancho+1)};
 }
 
 //Verifica si se ha comido una fruta, si la cabeza esta en la misma posicion que la fruta
 function haComido(snake,fruit){
   const head = first(snake);
   if ((head.x == fruit.x)&&(head.y == fruit.y)){
+      return true;
+  } else {
+      return false;
+  }
+}
+
+//Verifica si se ha comido una trampa, si la cabeza esta en la misma posicion que la trampa
+function haCaidoT(snake,trap){
+  const head = first(snake);
+  if ((head.x == trap.x)&&(head.y == trap.y)){
       return true;
   } else {
       return false;
@@ -133,7 +161,6 @@ function inList(list, elem){
       return (inList((rest(list)),elem));
   }
 }
-
 //Termina el juego si la serpiente choca contra si misma
 function choqueSerpiente(snake){
   if (inList((rest(snake)),(first(snake))) == true){
@@ -146,6 +173,61 @@ function choqueSerpiente(snake){
 //Verifica que la comida no este dentro de la serpiente
 function posFood(snake,food){
   return inList(rest(snake),food);
+}
+
+//Verifica que la trampa no este dentro de la serpiente
+function posTrap(snake,trap){
+  return inList(rest(snake),trap);
+}
+
+//Termina el juego si la serpiente choca contra un obstaculo
+function choqueObstaculo(snake,obstaculo){
+    const head = first(snake);
+    return inList(obstaculo,head);
+}
+
+//Añade un obstaculo
+function addObstaculo(obstaculo){
+    const alto = (canvasAlto-dx)/dx
+    const ancho = (canvasAncho-dy)/dy
+    return cons({x: floor(random()*alto+1),y: floor(random()*ancho+1)},obstaculo);
+}
+
+//Dibuja un obstaculo
+function drawObstaculo(obstaculo){
+    fill('#f4f7f2');
+    forEach(obstaculo, o => {
+      rect(o.x * dx, o.y * dy, dx, dy);
+    });
+}
+
+//Verifica si la comida esta dentro de un obstaculo
+function obsFood(obstaculo,comida){
+  return inList(obstaculo,comida);
+}
+
+//Verifica si la trampa esta dentro de un obstaculo
+function obsTrap(obstaculo,trap){
+  return inList(obstaculo,trap);
+}
+
+//Verifica si la comida y la trampa estan en la misma posicion
+function trapFood(trap, food){
+  if ((trap.x == food.x) && (trap.y == food.y)){
+      return (true);
+  } else {
+      return (false);
+  }
+}
+
+//Dibuja los controles en pantalla
+function drawControls() {
+  fill('rgba(255,255,255,0.1)');
+  triangle(canvasAncho/2,0,canvasAncho/3,canvasAlto/3,(canvasAncho/3)*2,canvasAlto/3);
+  triangle(canvasAncho/3,canvasAlto/3,canvasAncho/3,(canvasAlto/3)*2,0,canvasAlto/2);
+  triangle((canvasAncho/3)*2,canvasAlto/3,(canvasAncho/3)*2,(canvasAlto/3)*2,canvasAncho,(canvasAlto/2));
+  triangle(canvasAncho/3,(canvasAlto/3)*2,(canvasAncho/3)*2,(canvasAlto/3)*2,canvasAncho/2,canvasAlto);
+  fill(255,0,0);
 }
 
 /*
@@ -161,15 +243,15 @@ function preload(){
   melon = loadImage("imgInGame/sandia.png");
 }
 
-/**
- * Esto se llama antes de iniciar el juego
- */
+/*
+  Esto se llama antes de iniciar el juego
+*/
  function setup() {
   const drawAlto = canvasAlto;
   const drawAncho = canvasAncho;
-  frameRate(8);
+  frameRate(10);
   createCanvas(drawAlto, drawAncho);
-  Mundo = {snake: [{ x: 3, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 1 }], dir: {x: 1, y: 0}, food: {x: 5, y: 5 }, score: 0, parar: false};
+  Mundo = {snake: [{ x: 3, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 1 }], dir: {x: 1, y: 0}, food: {x: 5, y: 5 }, score: 0, parar: false, obstaculo: [], trap: {x: 7, y: 7}};
   backsound.loop();
   backsound.setVolume(0.3);
 }
@@ -189,34 +271,79 @@ function drawGame(Mundo){
       drawFood(Mundo.food);
       drawSnake(Mundo.snake);
       drawHead(Mundo.snake,Mundo.dir);
+      drawObstaculo(Mundo.obstaculo);
+      drawTrap(Mundo.trap);
       drawScore(Mundo.score);
+      drawControls();
   } else {
       background('#163746');
       drawFood(Mundo.food);
       drawSnake(Mundo.snake);
       drawHead(Mundo.snake,Mundo.dir);
+      drawObstaculo(Mundo.obstaculo);
+      drawTrap(Mundo.trap);
       drawScore(Mundo.score);
+      drawControls();
       fruit.play();
   }
 }
 
 // Esto se ejecuta en cada tic del reloj. Con esto se pueden hacer animaciones
 function onTic(Mundo){
-  if (choqueSerpiente(Mundo.snake) || choqueMuro(Mundo.snake)){
+  if (Mundo.score%2 !== 0){
+      return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir),obstaculo: addObstaculo(Mundo.obstaculo),score: addScore(1)});
+  } else if (choqueMuro(Mundo.snake)){
       return (update(Mundo, {parar: true}));
-  } else if (posFood(Mundo.snake,Mundo.food)){
+  } else if (haCaidoT(Mundo.snake,Mundo.trap) || choqueSerpiente(Mundo.snake) || choqueObstaculo(Mundo.snake,Mundo.obstaculo)){
+      if (Mundo.score < 10){
+          return (update(Mundo, {parar: true}));
+      } else {
+          return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir),food: moveFood(Mundo.food), score: redScore(10), trap: moveTrap(Mundo.trap)});
+      }
+  } else if (posFood(Mundo.snake,Mundo.food) || obsFood(Mundo.obstaculo,Mundo.food)){
       return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir), food: moveFood(Mundo.food)});
+  } else if (posTrap(Mundo.snake, Mundo.trap) || obsTrap(Mundo.obstaculo, Mundo.trap) || trapFood(Mundo.trap, Mundo.food)){
+      return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir), trap: moveTrap(Mundo.trap)});
   } else if (!haComido(Mundo.snake,Mundo.food)){
       return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir)});
   } else {
-      return update(Mundo, {snake: addSnake(Mundo.snake, Mundo.dir),food: moveFood(Mundo.food), score: addScore(1)});
+      return update(Mundo, {snake: addSnake(Mundo.snake, Mundo.dir),food: moveFood(Mundo.food), score: addScore(1), trap: moveTrap(Mundo.trap)});
   }
 }
 
 //Implemente esta función si quiere que su programa reaccione a eventos del mouse
 function onMouseEvent (Mundo, event) {
+  if (event.action == "click"){
+    if ((event.mouseX < ((canvasAncho/3)*2)) && (event.mouseX > (canvasAncho/3)) && (event.mouseY < (canvasAlto/3)) && (event.mouseY > 0)){
+      if ((Mundo.dir.y == 1) && (Mundo.dir.x == 0)){
+          return update(Mundo, {dir: {y: 1, x: 0}});
+      } else {
+          return update(Mundo, {dir: {y: -1, x: 0}});
+      }
+    } else if ((event.mouseX < ((canvasAncho/3)*2)) && (event.mouseX > (canvasAncho/3)) && (event.mouseY < canvasAlto) && (event.mouseY > ((canvasAlto/3)*2))){
+      if ((Mundo.dir.y == -1) && (Mundo.dir.x == 0)){
+          return update(Mundo, {dir: {y: -1, x: 0}});
+      } else {
+          return update(Mundo, {dir: {y: 1, x: 0}});
+      }
+    } else if ((event.mouseX < (canvasAncho/3)) && (event.mouseX > 0) && (event.mouseY < ((canvasAlto/3)*2)) && (event.mouseY > (canvasAlto/3))){
+      if ((Mundo.dir.y == 0) && (Mundo.dir.x == 1)){
+          return update(Mundo, {dir: {y: 0, x: 1}});
+      } else {
+          return update(Mundo, {dir: {y: 0, x: -1}});
+      }
+    } else if ((event.mouseX < canvasAncho) && (event.mouseX > ((canvasAncho/3)*2)) && (event.mouseY < ((canvasAlto/3)*2)) && (event.mouseY > (canvasAlto/3))){
+      if ((Mundo.dir.y == 0) && (Mundo.dir.x == -1)){
+          return update(Mundo, {dir: {y: 0, x: -1}});
+      } else {
+          return update(Mundo, {dir: {y: 0, x: 1}});
+      }
+    }
+  } else {
    return update(Mundo,{});
+  }
 }
+
 
 
 /**
@@ -254,7 +381,7 @@ function onKeyEvent (Mundo, keyCode) {
       }
       break;
       case 67:
-        return (update(Mundo, {snake: addSnake(Mundo.snake, Mundo.dir),food: moveFood(Mundo.food), score: addScore(10)}));
+        return (update(Mundo, {snake: addSnake(Mundo.snake, Mundo.dir),food: moveFood(Mundo.food), score: addScore(1)}));
       break;
       case 96:
         return (update(Mundo, {parar: true}));
