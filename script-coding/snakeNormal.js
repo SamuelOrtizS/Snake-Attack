@@ -61,9 +61,15 @@ function drawHead(snake,dir){
   }
 }
 
-//Dibuja la comida
-function drawFood(food) {
-  image(apple,food.x * dx,food.y * dy,dx,dy);
+//Dibuja la comida, si recibe un 0 dibuja una manzana, si recibe un 1 dibuja una sandia
+function drawFood(food, num) {
+  if (num == 0){
+      return image(apple,food.x * dx,food.y * dy,dx,dy);
+  } else if (num == 1){
+      return image(melon,food.x * dx, food.y * dy, dx, dy);
+  } else {
+      return image(apple,food.x * dx,food.y * dy,dx,dy);
+  }
 }
 
 //Dibuja el puntaje
@@ -148,6 +154,11 @@ function posFood(snake,food){
   return inList(rest(snake),food);
 }
 
+//Genera un numero entre 0 y 1 de forma aleatoria
+function randomFruta(){
+  return Math.round(Math.random());
+}
+
 /*
   Se pre-cargan los recursos necesarios
 */
@@ -159,6 +170,8 @@ function preload(){
   //se cargan las imagenes
   apple = loadImage("imgInGame/manzana.png");
   melon = loadImage("imgInGame/sandia.png");
+  appleTrap = loadImage("imgInGame/manzanaT.png");
+  melonTrap = loadImage("imgInGame/sandiaT.png");
 }
 
 /**
@@ -169,7 +182,7 @@ function preload(){
   const drawAncho = canvasAncho;
   frameRate(8);
   createCanvas(drawAlto, drawAncho);
-  Mundo = {snake: [{ x: 3, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 1 }], dir: {x: 1, y: 0}, food: {x: 5, y: 5 }, score: 0, parar: false};
+  Mundo = {snake: [{ x: 3, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 1 }], dir: {x: 1, y: 0}, food: {x: 5, y: 5 }, score: 0, parar: false, fruta: 0};
   backsound.loop();
   backsound.setVolume(0.3);
 }
@@ -186,13 +199,13 @@ function drawGame(Mundo){
       backsound.setVolume(0.05);
   } else if (!haComido(Mundo.snake,Mundo.food)){
       background('#163746');
-      drawFood(Mundo.food);
+      drawFood(Mundo.food,Mundo.fruta);
       drawSnake(Mundo.snake);
       drawHead(Mundo.snake,Mundo.dir);
       drawScore(Mundo.score);
   } else {
       background('#163746');
-      drawFood(Mundo.food);
+      drawFood(Mundo.food,Mundo.fruta);
       drawSnake(Mundo.snake);
       drawHead(Mundo.snake,Mundo.dir);
       drawScore(Mundo.score);
@@ -209,7 +222,7 @@ function onTic(Mundo){
   } else if (!haComido(Mundo.snake,Mundo.food)){
       return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir)});
   } else {
-      return update(Mundo, {snake: addSnake(Mundo.snake, Mundo.dir),food: moveFood(Mundo.food), score: addScore(1)});
+      return update(Mundo, {snake: addSnake(Mundo.snake, Mundo.dir),food: moveFood(Mundo.food), score: addScore(1), fruta: randomFruta()});
   }
 }
 

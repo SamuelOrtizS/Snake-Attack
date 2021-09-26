@@ -10,12 +10,10 @@ function update(data, attribute) {
   return Object.assign({}, data, attribute);
 }
 
-//////////////////////// Mundo inicial
+// Declara un Mundo inicial vacio
 let Mundo = {}
-////////////////////////
-/**
- * Actualiza la serpiente. Creando una nueva cabeza y removiendo la cola
- */
+
+//Actualiza la serpiente. Creando una nueva cabeza y removiendo la cola
 function moveSnake(snake, dir) {
   const head = first(snake);
   return cons({x: head.x + dir.x, y: head.y + dir.y}, snake.slice(0, length(snake) - 1));
@@ -30,7 +28,7 @@ const canvasAncho = 480;
 
 //Dibuja cada parte de la serpiente
 function drawSnake(snake){
-  fill('#b4342e');
+  fill('#07cb07');
   forEach(snake, s => {
     rect(s.x * dx, s.y * dy, dx, dy);
   });
@@ -62,14 +60,26 @@ function drawHead(snake,dir){
   }
 }
 
-//Dibuja la comida
-function drawFood(food) {
-  image(apple,food.x * dx,food.y * dy,dx,dy);
+//Dibuja la comida, si recibe un 0 dibuja una manzana, si recibe un 1 dibuja una sandia
+function drawFood(food, num) {
+  if (num == 0){
+      return image(apple,food.x * dx,food.y * dy,dx,dy);
+  } else if (num == 1){
+      return image(melon,food.x * dx, food.y * dy, dx, dy);
+  } else {
+      return image(apple,food.x * dx,food.y * dy,dx,dy);
+  }
 }
 
-//Dibuja la comida trampa
-function drawTrap(trap) {
-  image(melon,trap.x * dx, trap.y * dy, dx, dy);
+//Dibuja la comida trampa, si recibe un 0 dibuja una manzana, si recibe un 1 dibuja una sandia
+function drawTrap(trap,num) {
+  if (num == 0){
+      return image(appleTrap,trap.x * dx,trap.y * dy,dx,dy);
+  } else if (num == 1){
+      return image(melonTrap,trap.x * dx, trap.y * dy, dx, dy);
+  } else {
+      return image(appleTrap,trap.x * dx,trap.y * dy,dx,dy);
+  }
 }
 
 //Dibuja el puntaje
@@ -233,9 +243,13 @@ function trapFood(trap, food){
   }
 }
 
-/*
-  Se pre-cargan los recursos necesarios
-*/
+//Genera un numero entre 0 y 1 de forma aleatoria
+function randomFruta(){
+  return Math.round(Math.random());
+}
+
+
+//Se pre-cargan los recursos necesarios
 function preload(){
   //Se cargan los sonidos
   fruit = loadSound("sounds/fruta.mp3");
@@ -244,23 +258,24 @@ function preload(){
   //se cargan las imagenes
   apple = loadImage("imgInGame/manzana.png");
   melon = loadImage("imgInGame/sandia.png");
+  appleTrap = loadImage("imgInGame/manzanaT.png");
+  melonTrap = loadImage("imgInGame/sandiaT.png");
 }
 
-/*
-  Esto se llama antes de iniciar el juego
-*/
+//Crea el canvas sobre el que se dibuja el juego. Establece sus propiedades. Crea el Mundo inicial. Inicia la musica de fondo.
  function setup() {
   const drawAlto = canvasAlto;
   const drawAncho = canvasAncho;
   frameRate(10);
   createCanvas(drawAlto, drawAncho);
-  Mundo = {snake: [{ x: 3, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 1 }], dir: {x: 1, y: 0}, food: {x: 5, y: 5 }, score: 0, parar: false, obstaculo: [], trap: {x: 7, y: 7}, life: 3};
+  Mundo = {snake: [{ x: 3, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 1 }], dir: {x: 1, y: 0}, food: {x: 5, y: 5 }, score: 0, parar: false, obstaculo: [], trap: {x: 7, y: 7}, life: 3, fruta: 0};
   backsound.loop();
   backsound.setVolume(0.3);
 }
 
-// Dibuja algo en el canvas. Aqui se pone todo lo que quieras pintar
+// Dibuja los diferentes elementos del juego y reproduce los efectos de sonido.
 function drawGame(Mundo){
+  //Muestra pantalla de perdida
   if (Mundo.parar){
       fill('#ed7a5a');
       textSize(50);
@@ -269,63 +284,58 @@ function drawGame(Mundo){
       frameRate(0);
       gameover.play();
       backsound.setVolume(0.05);
+  //Dibuja el juego
   } else if (!haComido(Mundo.snake,Mundo.food)){
       background('#163746');
-      drawFood(Mundo.food);
+      drawFood(Mundo.food, Mundo.fruta);
       drawSnake(Mundo.snake);
       drawHead(Mundo.snake,Mundo.dir);
       drawObstaculo(Mundo.obstaculo);
-      drawTrap(Mundo.trap);
+      drawTrap(Mundo.trap,Mundo.fruta);
       drawScore(Mundo.score);
       drawlife(Mundo.life);
+  //Dibuja el juego y reproduce un sonido cada vez que la serpiente come
   } else {
       background('#163746');
-      drawFood(Mundo.food);
+      drawFood(Mundo.food, Mundo.fruta);
       drawSnake(Mundo.snake);
       drawHead(Mundo.snake,Mundo.dir);
       drawObstaculo(Mundo.obstaculo);
-      drawTrap(Mundo.trap);
+      drawTrap(Mundo.trap,Mundo.fruta);
       drawScore(Mundo.score);
       drawlife(Mundo.life);
       fruit.play();
   }
 }
 
-// Esto se ejecuta en cada tic del reloj. Con esto se pueden hacer animaciones
+//Actualiza el mundo en cada Tic de reloj, llevando a cabo las diferentes funciones del juego
 function onTic(Mundo){
-  if (Mundo.score%2 !== 0){
-      return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir),obstaculo: addObstaculo(Mundo.obstaculo),score: addScore(1)});
-  } else if (choqueMuro(Mundo.snake)){
-      return (update(Mundo, {parar: true}));
-  } else if (haCaidoT(Mundo.snake,Mundo.trap) || choqueSerpiente(Mundo.snake) || choqueObstaculo(Mundo.snake,Mundo.obstaculo)){
-      if (Mundo.life < 1){
-          return (update(Mundo, {parar: true}));
-      } else {
-          return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir),food: moveFood(Mundo.food), trap: moveTrap(Mundo.trap), life: redLife(1)});
-      }
-  } else if (posFood(Mundo.snake,Mundo.food) || obsFood(Mundo.obstaculo,Mundo.food)){
-      return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir), food: moveFood(Mundo.food)});
-  } else if (posTrap(Mundo.snake, Mundo.trap) || obsTrap(Mundo.obstaculo, Mundo.trap) || trapFood(Mundo.trap, Mundo.food)){
-      return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir), trap: moveTrap(Mundo.trap)});
-  } else if (!haComido(Mundo.snake,Mundo.food)){
-      return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir)});
-  } else {
-      return update(Mundo, {snake: addSnake(Mundo.snake, Mundo.dir),food: moveFood(Mundo.food), score: addScore(1), trap: moveTrap(Mundo.trap)});
+  //Genera un nuevo obstaculo en caso de que la serpiente coma una fruta
+  if (Mundo.score%2 !== 0){return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir),obstaculo: addObstaculo(Mundo.obstaculo),score: addScore(1)});}
+  //Detiene el juego en caso de que la serpiente choque contra el muro
+  else if (choqueMuro(Mundo.snake)){return (update(Mundo, {parar: true}));}
+  //Verifica las colisiones
+  else if (haCaidoT(Mundo.snake,Mundo.trap) || choqueSerpiente(Mundo.snake) || choqueObstaculo(Mundo.snake,Mundo.obstaculo)){
+    //Detiene el juego si la serpiente se queda sin vidas  
+    if (Mundo.life < 1){return (update(Mundo, {parar: true}));}
+    //Resta una vida de la serpiente y continua el juego
+    else {return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir),food: moveFood(Mundo.food), trap: moveTrap(Mundo.trap), life: redLife(1)});}
   }
+  //Mueve la fruta en caso de que se genere dentro de la serpiente o dentro de un obstaculo
+  else if (posFood(Mundo.snake,Mundo.food) || obsFood(Mundo.obstaculo,Mundo.food)){return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir), food: moveFood(Mundo.food)});}
+  //Mueve la trampa en caso de que se genere dentro de la serpiente, un obstaculo o una fruta
+  else if (posTrap(Mundo.snake, Mundo.trap) || obsTrap(Mundo.obstaculo, Mundo.trap) || trapFood(Mundo.trap, Mundo.food)){return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir), trap: moveTrap(Mundo.trap)});} 
+  //Continua el juego en caso de que la serpiente no haya comido
+  else if (!haComido(Mundo.snake,Mundo.food)){return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir)});}
+  //En caso de que la serpiente coma, aumenta el tamaño de la serpiente, el puntaje, genera una nueva trampa y una nueva fruta
+  else {return update(Mundo, {snake: addSnake(Mundo.snake, Mundo.dir),food: moveFood(Mundo.food), score: addScore(1), trap: moveTrap(Mundo.trap), fruta: randomFruta()});}
 }
 
-//Implemente esta función si quiere que su programa reaccione a eventos del mouse
-function onMouseEvent (Mundo, event) {
-   return update(Mundo,{});
-}
-
-
-/**
-* Actualiza el mundo cada vez que se oprime una tecla. Retorna el nuevo stado del mundo
-*/
+//Actualiza el mundo al presionar una tecla, ademas realiza diferentes acciones en caso de presionar determinadas teclas.
 function onKeyEvent (Mundo, keyCode) {
-  // Cambiamos la dirección de la serpiente. Noten que no movemos la serpiente. Solo la dirección. Además, verifica si la siguiente dirección es válida.
+  // Cambia la dirección de la serpiente. Además, verifia si la siguiente dirección es válida.
   switch (keyCode) {
+    //Cambia la direccion hacia arriba al presionar la flecha hacia arriba
     case UP_ARROW:
       if ((Mundo.dir.y == 1) && (Mundo.dir.x == 0)){
           return update(Mundo, {dir: {y: 1, x: 0}});
@@ -333,6 +343,7 @@ function onKeyEvent (Mundo, keyCode) {
           return update(Mundo, {dir: {y: -1, x: 0}});
       }
       break;
+    //Cambia la direccion hacia abajo al presionar la flecha hacia abajo
     case DOWN_ARROW:
       if ((Mundo.dir.y == -1) && (Mundo.dir.x == 0)){
           return update(Mundo, {dir: {y: -1, x: 0}});
@@ -340,6 +351,7 @@ function onKeyEvent (Mundo, keyCode) {
           return update(Mundo, {dir: {y: 1, x: 0}});
       }
       break;
+    //Cambia la direccion hacia la izquierda al presionar la flecha hacia la izquierda
     case LEFT_ARROW:
           if ((Mundo.dir.y == 0) && (Mundo.dir.x == 1)){
           return update(Mundo, {dir: {y: 0, x: 1}});
@@ -347,6 +359,7 @@ function onKeyEvent (Mundo, keyCode) {
           return update(Mundo, {dir: {y: 0, x: -1}});
       }
       break;
+    //Cambia la direccion hacia la derecha al presionar la flecha hacia la derecha
     case RIGHT_ARROW:
       if ((Mundo.dir.y == 0) && (Mundo.dir.x == -1)){
           return update(Mundo, {dir: {y: 0, x: -1}});
@@ -354,14 +367,7 @@ function onKeyEvent (Mundo, keyCode) {
           return update(Mundo, {dir: {y: 0, x: 1}});
       }
       break;
-      case 67:
-        return (update(Mundo, {snake: addSnake(Mundo.snake, Mundo.dir),food: moveFood(Mundo.food), score: addScore(1)}));
-      break;
-      case 96:
-        return (update(Mundo, {parar: true}));
-      break
     default:
-      console.log(keyCode);
       return update(Mundo, {});
   }
 }

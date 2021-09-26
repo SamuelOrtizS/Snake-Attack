@@ -30,7 +30,7 @@ const canvasAncho = 480;
 
 //Dibuja cada parte de la serpiente
 function drawSnake(snake){
-  fill('#b4342e');
+  fill('#fdc72d');
   forEach(snake, s => {
     rect(s.x * dx, s.y * dy, dx, dy);
   });
@@ -62,14 +62,26 @@ function drawHead(snake,dir){
   }
 }
 
-//Dibuja la comida
-function drawFood(food) {
-  image(apple,food.x * dx,food.y * dy,dx,dy);
+//Dibuja la comida, si recibe un 0 dibuja una manzana, si recibe un 1 dibuja una sandia
+function drawFood(food, num) {
+  if (num == 0){
+      return image(apple,food.x * dx,food.y * dy,dx,dy);
+  } else if (num == 1){
+      return image(melon,food.x * dx, food.y * dy, dx, dy);
+  } else {
+      return image(apple,food.x * dx,food.y * dy,dx,dy);
+  }
 }
 
-//Dibuja la comida trampa
-function drawTrap(trap) {
-  image(melon,trap.x * dx, trap.y * dy, dx, dy);
+//Dibuja la comida trampa, si recibe un 0 dibuja una manzana, si recibe un 1 dibuja una sandia
+function drawTrap(trap,num) {
+  if (num == 0){
+      return image(appleTrap,trap.x * dx,trap.y * dy,dx,dy);
+  } else if (num == 1){
+      return image(melonTrap,trap.x * dx, trap.y * dy, dx, dy);
+  } else {
+      return image(appleTrap,trap.x * dx,trap.y * dy,dx,dy);
+  }
 }
 
 //Dibuja el puntaje
@@ -220,6 +232,11 @@ function trapFood(trap, food){
   }
 }
 
+//Genera un numero entre 0 y 1 de forma aleatoria
+function randomFruta(){
+  return Math.round(Math.random());
+}
+
 /*
   Se pre-cargan los recursos necesarios
 */
@@ -231,6 +248,8 @@ function preload(){
   //se cargan las imagenes
   apple = loadImage("imgInGame/manzana.png");
   melon = loadImage("imgInGame/sandia.png");
+  appleTrap = loadImage("imgInGame/manzanaT.png");
+  melonTrap = loadImage("imgInGame/sandiaT.png");
 }
 
 /*
@@ -241,7 +260,7 @@ function preload(){
   const drawAncho = canvasAncho;
   frameRate(10);
   createCanvas(drawAlto, drawAncho);
-  Mundo = {snake: [{ x: 3, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 1 }], dir: {x: 1, y: 0}, food: {x: 5, y: 5 }, score: 0, parar: false, obstaculo: [], trap: {x: 7, y: 7}};
+  Mundo = {snake: [{ x: 3, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 1 }], dir: {x: 1, y: 0}, food: {x: 5, y: 5 }, score: 0, parar: false, obstaculo: [], trap: {x: 7, y: 7}, fruta: 0};
   backsound.loop();
   backsound.setVolume(0.3);
 }
@@ -258,19 +277,19 @@ function drawGame(Mundo){
       backsound.setVolume(0.05);
   } else if (!haComido(Mundo.snake,Mundo.food)){
       background('#163746');
-      drawFood(Mundo.food);
+      drawFood(Mundo.food,Mundo.fruta);
       drawSnake(Mundo.snake);
       drawHead(Mundo.snake,Mundo.dir);
       drawObstaculo(Mundo.obstaculo);
-      drawTrap(Mundo.trap);
+      drawTrap(Mundo.trap,Mundo.fruta);
       drawScore(Mundo.score);
   } else {
       background('#163746');
-      drawFood(Mundo.food);
+      drawFood(Mundo.food,Mundo.fruta);
       drawSnake(Mundo.snake);
       drawHead(Mundo.snake,Mundo.dir);
       drawObstaculo(Mundo.obstaculo);
-      drawTrap(Mundo.trap);
+      drawTrap(Mundo.trap,Mundo.fruta);
       drawScore(Mundo.score);
       fruit.play();
   }
@@ -295,7 +314,7 @@ function onTic(Mundo){
   } else if (!haComido(Mundo.snake,Mundo.food)){
       return update(Mundo, {snake: moveSnake(Mundo.snake, Mundo.dir)});
   } else {
-      return update(Mundo, {snake: addSnake(Mundo.snake, Mundo.dir),food: moveFood(Mundo.food), score: addScore(1), trap: moveTrap(Mundo.trap)});
+      return update(Mundo, {snake: addSnake(Mundo.snake, Mundo.dir),food: moveFood(Mundo.food), score: addScore(1), trap: moveTrap(Mundo.trap), fruta: randomFruta()});
   }
 }
 
