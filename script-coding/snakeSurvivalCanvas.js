@@ -122,11 +122,11 @@ function addSnake(snake, dir) {
 }
 
 //Retorna el ultimo elemento de una lista
-function last(test){
-  if (length(test == 1)){
-      return test;
+function last(list){
+  if (length(list == 1)){
+      return list;
   } else {
-      return rest(test);
+      return rest(list);
   }
 }
 

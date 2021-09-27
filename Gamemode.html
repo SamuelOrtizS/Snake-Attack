@@ -1,85 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>SnakeAttack - Modos de Juego</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="Gamemode.css">
-  </head>
+
+<head>
+  <title>SnakeAttack - Modos de Juego</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="Gamemode.css">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+	<link rel="shortcut icon" href="favicon.png" type="image/png">
+</head>
 
 
-  <a href="index.html">
-    <img src="imgPantalla/Titulo.jpg" style="width:100%; display: block;">
-  </a>
-  <img src="imgGamemode/espacio.png" style="width:100%;display: block;">
-  <body>
-    <table widht="100%" border="0" cellpadding="2" class="desktop">
-      <div id="desktop" class="desktop">
-        <nav>
-          <tr>
-	          <td>
-		        	<a href="Facil.html">
-		          	<img src="imgGamemode/Boton_Facil.png" style="width:100%; display: block;" > 
-		      	</a>
-		        </td>
-
-            <td>
-		        	<a href="Normal.html">
-		          	<img src="imgGamemode/Boton_Normal.png" style="width:100%; display: block;" > 
-		      	</a>
-		        </td>
-
-            <td>
-		        	<a href= "Dificil.html">
-		          	<img src="imgGamemode/Boton_Dificil.png" style="width:100%; display: block;" > 
-		      	</a>
-		        </td>
-       </nav>
-      </div>
-    <table widht="100%" border="0" cellpadding="2" class="mobile">
-      <div id="Mobile">
-        <nav>
-          <tr>
-	          <td>
-		        	<a href="FacilMobile.html">
-		          	<img src="imgGamemode/Boton_Facil.png" style="width:100%; display: block;" > 
-		      	</a>
-		        </td>
-
-            <td>
-		        	<a href="NormalMobile.html">
-		          	<img src="imgGamemode/Boton_Normal.png" style="width:100%; display: block;" > 
-		      	</a>
-		        </td>
-
-            <td>
-		        	<a href= "DificilMobile.html">
-		          	<img src="imgGamemode/Boton_Dificil.png" style="width:100%; display: block;" > 
-		      	</a>
-		        </td>
-       </nav>
-      </div>
-  </body>
-</html>
+<a href="index.html">
+  <img src="imgPantalla/Titulo.jpg" style="width:100%; display: block;">
+</a>
+<img src="imgGamemode/espacio.png" style="width:100%;display: block;">
 
 <body>
-  <table widht="100%" border="0" cellpadding="2">
+  <div>
+    <table widht="100%" border="0" cellpadding="2" class="desktop">
+      <nav>
+        <tr>
+          <td>
+            <a href="Facil.html">
+              <img src="imgGamemode/Boton_Facil.png" style="width:100%; display: block;">
+            </a>
+          </td>
+
+          <td>
+            <a href="Normal.html">
+              <img src="imgGamemode/Boton_Normal.png" style="width:100%; display: block;">
+            </a>
+          </td>
+
+          <td>
+            <a href="Dificil.html">
+              <img src="imgGamemode/Boton_Dificil.png" style="width:100%; display: block;">
+            </a>
+          </td>
+      </nav>
+    </table>
+    <nav class="desktop">
+    <img src="imgGamemode/espacio.png" style="width:100%;display: block;">
+
+    <a href="Arcade.html">
+      <img src="imgGamemode/Arcade.png" style="width:100%; display: block;">
+    </a>
+
+    <img src="imgGamemode/espacio.png" style="width:100%;display: block;">
+
+    <a href="Survival.html">
+      <img src="imgGamemode/Survival.png" style="width:100%; display: block;">
+    </a>
+  </nav>
+  </div>
+  <div id="Mobile" class="mobile">
+    <table widht="100%" border="0" cellpadding="2" class="mobile">
+      <nav>
+        <tr>
+          <td>
+            <a href="FacilMobile.html">
+              <img src="imgGamemode/Boton_Facil.png" style="width:100%; display: block;">
+            </a>
+          </td>
+
+          <td>
+            <a href="NormalMobile.html">
+              <img src="imgGamemode/Boton_Normal.png" style="width:100%; display: block;">
+            </a>
+          </td>
+
+          <td>
+            <a href="DificilMobile.html">
+              <img src="imgGamemode/Boton_Dificil.png" style="width:100%; display: block;">
+            </a>
+          </td>
+      </nav>
+    </table>
+    <nav class="mobile">
+    <img src="imgGamemode/espacio.png" style="width:100%;display: block;">
+
+    <a href="ArcadeMobile.html">
+      <img src="imgGamemode/Arcade.png" style="width:100%; display: block;">
+    </a>
+
+    <img src="imgGamemode/espacio.png" style="width:100%;display: block;">
+
+    <a href="SurvivalMobile.html">
+      <img src="imgGamemode/Survival.png" style="width:100%; display: block;">
+    </a>
+    </nav>
+  </div>
+  
+</body>
+<body>
+  <table width="100%" border="0" cellpadding="2">
     <div>
       <nav>
         <tr>
           <img src="imgGamemode/espacio.png" style="width:100%;display: block;">
-	   	      <a href="index.html">
-	       	    <img src="imgGamemode/Regresar.png" style="width:100%; display: block;" > 
-	   	      </a>
+          <a href="index.html">
+            <img src="imgGamemode/Regresar.png" style="width:100%; display: block;">
+          </a>
         </tr>
       </nav>
     </div>
-  <table>
-<!--Se reproduce el audio de fondo, aplicando el iframe para saltarse la limitacion de algunos navegadores para la reproduccion automatica de audio-->
-<iframe src="sounds/silence.mp3" allow="autoplay" id="audio" style="display: none"></iframe>
-<audio id="backsound" src="sounds/background.mp3" autoplay loop></audio>
-<script>
-	var audio = document.getElementById("backsound");
-	audio.volume = 0.3;
-</script>
+    <table>
+      <!--Se reproduce el audio de fondo, aplicando el iframe para saltarse la limitacion de algunos navegadores para la reproduccion automatica de audio-->
+      <iframe src="sounds/silence.mp3" allow="autoplay" id="audio" style="display: none"></iframe>
+      <audio id="backsound" src="sounds/background.mp3" autoplay loop></audio>
+      <script>
+        var audio = document.getElementById("backsound");
+        audio.volume = 0.3;
+      </script>
 </body>
+
 </html>

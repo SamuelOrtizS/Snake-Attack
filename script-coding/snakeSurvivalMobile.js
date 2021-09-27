@@ -122,22 +122,26 @@ function addSnake(snake, dir) {
 }
 
 //Retorna el ultimo elemento de una lista
-function last(test){
-  if (length(test == 1)){
-      return test;
+function last(list){
+  if (length(list == 1)){
+      return list;
   } else {
-      return rest(test);
+      return rest(list);
   }
 }
 
-//Dibuja la comida
-function drawFood(food) {
-  image(apple,food.x * dx,food.y * dy,dx,dy);
+//Crea una nueva fruta, en una posicion aleatoria dentro del canvas
+function moveFood(food){
+  const alto = (canvasAlto-dx)/dx
+  const ancho = (canvasAncho-dy)/dy
+  return {x: floor(random()*alto+1),y: floor(random()*ancho+1)};
 }
 
-//Dibuja la comida trampa
-function drawTrap(trap) {
-  image(melon,trap.x * dx, trap.y * dy, dx, dy);
+//Crea una nueva trampa, en una posicion aleatoria dentro del canvas
+function moveTrap(trap){
+  const alto = (canvasAlto-dx)/dx
+  const ancho = (canvasAncho-dy)/dy
+  return {x: floor(random()*alto+1),y: floor(random()*ancho+1)};
 }
 
 //Verifica si se ha comido una fruta, si la cabeza esta en la misma posicion que la fruta
@@ -238,7 +242,7 @@ function trapFood(trap, food){
       return (true);
   } else {
       return (false);
-  }
+    }
 }
 
 //Genera un numero entre 0 y 1 de forma aleatoria
